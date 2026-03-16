@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: postgres:14
+    container_name: edtronaut-postgres
+    environment:
+      POSTGRES_DB: livecode
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:8.2.0
+    container_name: edtronaut-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api-service:
+    build:
+      context: ./backend/api-service
+      dockerfile: Dockerfile
+    container_name: edtronaut-api
+    ports:
+      - "8080:8080"
+    # environment:
+    #   DB_URL: jdbc:postgresql://postgres:5432/livecode
+    #   DB_USERNAME: postgres
+    #   DB_PASSWORD: postgres
+    #   REDIS_HOST: redis
+    #   REDIS_PORT: 6379
+    #   SERVER_PORT: 8080
+    env_file:
+      - ./backend/api-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker-service:
+    build:
+      context: ./backend/worker-service
+      dockerfile: Dockerfile
+    container_name: edtronaut-worker
+    # environment:
+    #   DB_URL: jdbc:postgresql://postgres:5432/livecode
+    #   DB_USERNAME: postgres
+    #   DB_PASSWORD: postgres
+    #   REDIS_HOST: redis
+    #   REDIS_PORT: 6379
+    #   WORKER_MAX_RETRIES: 3
+    #   WORKER_TIMEOUT_SECONDS: 10
+    #   WORKER_MEMORY_LIMIT: 256m
+    #   WORKER_WORKSPACE_BASE: /tmp/live-code
+    env_file:
+      - ./backend/worker-service/.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/live-code:/tmp/live-code
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

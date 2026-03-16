@@ -1,0 +1,22 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build folders
+target/
+bin/
+out/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# Logs
+logs/
+*.log
+
+# Temp
+/tmp/
