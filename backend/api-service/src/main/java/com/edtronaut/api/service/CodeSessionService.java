@@ -5,12 +5,16 @@ import com.edtronaut.api.model.CodeSession;
 import com.edtronaut.api.model.Language;
 import com.edtronaut.api.model.SessionStatus;
 import com.edtronaut.api.repository.CodeSessionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 public class CodeSessionService {
+
+    private static final Logger log = LoggerFactory.getLogger(CodeSessionService.class);
 
     private final CodeSessionRepository repository;
 
@@ -29,6 +33,7 @@ public class CodeSessionService {
         session.setStatus(SessionStatus.ACTIVE);
 
         session = repository.save(session);
+        log.info("Saved new session to database: {}", session.getId());
         return new SessionResponse(session.getId(), session.getStatus().name());
     }
 
@@ -44,6 +49,7 @@ public class CodeSessionService {
         }
 
         repository.save(session);
+        log.debug("Autosaved session: {}", sessionId);
     }
 
     public CodeSession getSession(UUID sessionId) {

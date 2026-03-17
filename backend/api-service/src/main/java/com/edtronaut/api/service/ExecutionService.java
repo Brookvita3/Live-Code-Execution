@@ -6,6 +6,8 @@ import com.edtronaut.api.model.CodeSession;
 import com.edtronaut.api.model.Execution;
 import com.edtronaut.api.model.ExecutionStatus;
 import com.edtronaut.api.repository.ExecutionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -17,6 +19,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ExecutionService {
+
+    private static final Logger log = LoggerFactory.getLogger(ExecutionService.class);
 
     private final ExecutionRepository executionRepository;
     private final CodeSessionService codeSessionService;
@@ -39,6 +43,7 @@ public class ExecutionService {
     public RunResponse runCode(UUID sessionId) {
         String rateLimitKey = "rate-limit:run:" + sessionId;
         if (Boolean.TRUE.equals(redisTemplate.hasKey(rateLimitKey))) {
+            log.warn("Rate limit hit for session: {}", sessionId);
             throw new ResponseStatusException(
                     HttpStatus.TOO_MANY_REQUESTS,
                     "Please wait " + rateLimitSeconds + " seconds between executions");
@@ -53,8 +58,10 @@ public class ExecutionService {
         execution.setStatus(ExecutionStatus.QUEUED);
 
         execution = executionRepository.save(execution);
+        log.info("Created execution record: {} for session: {}", execution.getId(), sessionId);
 
         redisQueueService.enqueue(execution.getId().toString());
+        log.info("Enqueued execution: {}", execution.getId());
 
         redisTemplate.opsForValue().set(rateLimitKey, "1", rateLimitSeconds, TimeUnit.SECONDS);
 

@@ -32,3 +32,12 @@ app:
     timeout-seconds: ${WORKER_TIMEOUT_SECONDS:10}
     memory-limit: ${WORKER_MEMORY_LIMIT:256m}
     workspace-base: ${WORKER_WORKSPACE_BASE:/tmp/live-code}
+
+logging:
+  level:
+    root: INFO
+    com:
+      edtronaut:
+        worker: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -38,3 +38,12 @@ springdoc:
     operations-sorter: alpha
     tags-sorter: alpha
 
+
+logging:
+  level:
+    root: INFO
+    com:
+      edtronaut:
+        api: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

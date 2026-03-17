@@ -64,11 +64,12 @@ public class CodeExecutorService {
         try {
 
             Files.createDirectories(workspace);
+            log.info("Starting execution: {} [Language: {}]", executionId, execution.getLanguage());
 
             LanguageConfig config = LanguageConfig.forLanguage(execution.getLanguage());
 
             String sourceCode = execution.getSourceCode() != null ? execution.getSourceCode().stripTrailing() : "";
-            System.out.println("Source code: " + sourceCode);
+            log.debug("Writing source code for execution {} to workspace ({} bytes)", executionId, sourceCode.length());
             Files.writeString(workspace.resolve(config.fileName()), sourceCode);
 
             long startTime = System.currentTimeMillis();
@@ -130,6 +131,7 @@ public class CodeExecutorService {
                         exitCode == 0
                                 ? ExecutionStatus.COMPLETED
                                 : ExecutionStatus.FAILED);
+                log.info("Execution {} completed with exit code: {}", executionId, exitCode);
             }
 
             execution.setExecutionTimeMs((int) elapsed);
