@@ -39,6 +39,28 @@ docker compose up --build
 - **PostgreSQL**: `localhost:5432`
 - **Redis**: `localhost:6379`
 
+### Frontend Configuration
+
+The frontend is now a modern Vite-based application located in the `frontend/` directory.
+
+#### Local Development
+1.  Navigate to `frontend/`.
+2.  Install dependencies: `npm install`.
+3.  Start development server: `npm run dev`.
+
+#### Environment Setup
+Update the API URL in `frontend/.env`:
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+#### Production Build
+To generate a production-ready bundle:
+```bash
+npm run build
+```
+The output will be in `frontend/dist/`.
+
 ## 🛠️ API Documentation
 
 | Method  | Endpoint                  | Description                            |
